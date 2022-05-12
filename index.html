@@ -1,0 +1,119 @@
+<html>
+    <head>
+        <head>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
+        </head>
+    </head>
+    <body>
+        
+        <div id="get">
+            <label for="formFileDisabled" class="form-label">Upload your files here</label>
+	        <input class="form-control" type="file" id="inputfile" onchange="onMyfileChange(this)"/>
+        </div>
+        
+        <script src="https://unpkg.com/jszip@3.7.1/dist/jszip.js" type="text/javascript"></script>
+        <div class="card" style="width: 18rem;"></div>
+            <ul id="unordered" class="list-group list-group-flush">
+                <br><li><strong>Files Will Be Listed Below</strong> </li><br>
+            </ul>
+        </div>
+
+        <div id="contents">
+
+        </div>
+        <script type="text/javascript">
+
+            // var FileSaver = require('file-saver');
+            function onMyfileChange(fileInput) {
+                if(fileInput.files[0] == undefined) {
+                    return ;
+                }
+                console.log('Inside onmychangeFile');
+                var filename = fileInput.files[0].name;
+                // var filesize = fileInput.files[0].size;
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    JSZip.loadAsync(ev.target.result).then(function(zip) {
+                        var ulfile = document.getElementById("unordered");
+                        for(let [filename, file] of Object.entries(zip.files)) {
+                                var linkFileContained = document.createElement("a");
+                                linkFileContained.innerHTML = filename;
+                                linkFileContained.href = "#";
+                                linkFileContained.file = file;
+                                linkFileContained.onclick = dis;
+                                // console.log(file);
+                                var liFileContained = document.createElement("li");
+                                liFileContained.className = "list-group-item";
+                                liFileContained.appendChild(linkFileContained);
+                                ulfile.appendChild(liFileContained);
+                                                    
+                        }
+                        // console.log(zip)
+                    }).catch(function(err) {
+                        console.error("Failed to open", filename, " as ZIP file");
+                    })
+                };
+                reader.onerror = function(err) {
+                    console.error("Failed to read file", err);
+                }
+                reader.readAsArrayBuffer(fileInput.files[0]);
+
+                // reader.addEventListener('load', dis);
+            }
+
+
+            function dis(event){
+
+                console.log(event.target.file.name);
+             
+                var zip = new JSZip();
+                // JSZipUtils.getBinaryContent(event.target.file.name, function (err, data) {
+                //         if(err) {
+                //             throw err; // or handle the error
+                //         }
+                //         var zip = new JSZip();
+                //         zip.file(event.target.file.name, data, {binary:true});
+                //         content = zip.generate();
+                //         zip.generateAsync({type:"blob"}).then(function (blob) { // 1) generate the zip file
+                //         saveAs(blob, event.target.file.name);                          // 2) trigger the download
+                //         }, function (err) {
+                //             console.log("Error");
+                //         });
+                //     });
+
+                event.target.file.async("string").then(function(data){
+                    
+                    console.log('data = ',data);
+                    zip.generateAsync({type:"blob"}).then(function (blob) { 
+                                        console.log('BLOB = ',blob);// 1) generate the zip file
+                                    saveAs(blob, event.target.file.name);                          // 2) trigger the download
+                                }, function (err) {
+                                    console.log("Error");
+                                });
+                
+
+                });
+                
+                                
+    
+                            // event.target.file.async("string")
+                            // .then(function (txt) {
+                            //         console.log("DATA = ",txt);
+                            //         zip.generateAsync({type:"blob"}).then(function (blob) { 
+                            //             console.log('BLOB = ',blob);// 1) generate the zip file
+                            //         saveAs(blob, event.target.file.name);                          // 2) trigger the download
+                            //     }, function (err) {
+                            //         console.log("Error");
+                            //     });
+                            // }, function error(e) {
+                            // console.error(e);
+                            // });
+        
+            
+            }
+        </script>
+    </body>
+</html>
